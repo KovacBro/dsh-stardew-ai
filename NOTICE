@@ -1,0 +1,28 @@
+# NOTICE
+
+本仓库（`KovacBro/dsh-stardew-ai`）是 DeepSeek Harness 的插件与 skill，
+不含游戏文件，也不修改上游 mod 的代码。
+
+## 上游
+
+- **Stardew MCP**：<https://github.com/duckxy166/stardew-ai-agent>
+  - 作者：duckxy166（Duckxy）
+  - 许可：MIT，Copyright (c) 2026 Duckxy
+  - 本仓库的 `references/` 下 `tools.md`、`api.md`、`configuration.md` 摘自上游 `docs/`，用于离线速查。
+  - 上游 fork 自 [Hunter-Thompson/stardew-mcp](https://github.com/Hunter-Thompson/stardew-mcp)，感谢最早的 WebSocket + Go 方案。
+
+## 本仓库新增
+
+- `src/`：DSH 插件（路径解析、doctor、focus、launch、周期卡片）
+- `skills/stardew/SKILL.md`：操作纪律与一天的标准流程
+- `cordis.patch.yml`：MCP client（streamable-http）+ skill provider 的装配
+
+## 与上游的关系
+
+- 上游是 **SMAPI mod**（C#，跑在游戏里，提供 MCP Server 与 HTTP API）。
+- 本仓库是 **DSH 插件**（JavaScript，跑在宿主侧，负责接线、诊断、生命周期和跨天记忆）。
+- 两者通过 `http://localhost:8770/mcp` 通信。本仓库不分发、不修改上游 mod；升级上游 mod 不需要改本插件。
+
+## 游戏
+
+《星露谷物语》版权归 ConcernedApe。本仓库不分发游戏本体、存档或游戏素材。

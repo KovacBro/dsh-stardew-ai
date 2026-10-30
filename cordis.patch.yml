@@ -1,0 +1,45 @@
+# dsh-stardew-ai bundle patch —— 把星露谷能力装进任意 dsh profile。
+#
+# 三层，各管一件事：
+#   1. stardew-mcp  : 官方 mcp-client 直接桥接 mod 的 Streamable HTTP 端点
+#                     （Stardew MCP 在游戏里跑，端口默认 8770）
+#   2. stardew-ai   : 本插件本体——路径解析、提示词纪律、doctor / 窗口 / 启动 / 周期卡片
+#   3. stardew-skills: 独立的 skill provider，只暴露本包自带的 skills/ 目录
+#
+# 顺序无语义：激活由服务可用性驱动。第 3 行 inject 了第 2 行提供的 stardewPaths，
+# 所以 skill 目录的绝对路径只需要在插件里维护一处。
+#
+# 用户覆盖方式（profile 自己的 cordis.patch.yml 按 id 覆盖，且会整体替换 config）：
+#   - insert:
+#       - id: stardew-mcp
+#         name: '@deepseek-ai/dsh-mcp-client'
+#         config:
+#           ...重述全部键，把 url 换成自己的端口
+- insert:
+    - id: stardew-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: stardew
+        transport: streamable-http
+        url: http://localhost:8770/mcp
+        # mod 在游戏暂停时会挂住 9 分钟，MCP 客户端 10 分钟超时；
+        # 这里留 5 分钟，慢了就让模型再叫一次，不要让它以为链路死了。
+        toolCallTimeoutMs: 300000
+        failOnStartupError: false
+        reconnect:
+          enabled: true
+          initialDelayMs: 1000
+          maxDelayMs: 30000
+          maxAttempts: 8
+
+    - id: stardew-ai
+      name: 'dsh-stardew-ai'
+
+    - id: stardew-skills
+      name: '@deepseek-ai/dsh-skill-filesystem'
+      inject: [stardewPaths]
+      config:
+        providerName: stardew-bundled
+        includeDefaultRoots: false
+        bundledSkillDir: !!js ctx.stardewPaths.skillDir
+        watch: false
